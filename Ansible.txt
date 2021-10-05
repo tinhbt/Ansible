@@ -1,0 +1,22 @@
+- /etc/ansible/
+- inventory file: /etc/ansible/hosts
+- inventory parameter: 
+linux: 
+  + ansible_connection (ssh/winrm/localhost)
+  + ansible_port (22/5986)
+  + ansible_ssh_user hoặc ansible_user (root,..)
+  + ansible_ssh_pass (password)
+  + ansible_host
+Windows:
+  + ansible_connection
+  + ansible_host
+  + ansible_user
+  + ansible_password
+- Cấu hình ssh-pass từ controller đến client trước để ssh vào
+  + install sshpass
+  + ssh-keygen -t rsa -N '' -f ~/.ssh/id_rsa #generate keygen
+  + ssh-copy-id user@ip   #copy keygen to client
+- Chỉnh file host 
+- host_key_checking   
+----------------------------------------
+YAML: 
