@@ -1,3 +1,11 @@
+một số command:
+ansible-playbook playbook.yaml -i inventory
+một số module hay dùng:
+lineinfile, 
+============
+Khi trong câu có dấu nháy đơn -> dùng dấu nháy kép thay thế
+==================================
+File inventory chứa các host
 - /etc/ansible/
 - inventory file: /etc/ansible/hosts
 - inventory parameter: 
@@ -20,3 +28,197 @@ Windows:
 - host_key_checking   
 ----------------------------------------
 YAML: 
+Các thành phần:
+	- Key value pair: 1 cặp key value, cách nhau bởi dấu : và dấu cách
+    	+ Ví dụ: Fruit: Apple
+    - Array/lists: Dạng liệt kê, 1 key có thể có nhiều value. Có dấu gạch ngang đầu dòng
+        + Ví dụ:  
+        		Fruit: 
+        		-    apple
+        		-    orange
+        		Vegetables:
+        		-    Carrot
+        		-    tomato
+Array ko thể có dấu :
+    - Dictionary/Map: là một tập hợp các thuộc tính được nhóm lại với nhau trong một mục
+   				Fruit: 
+        		    apple: 105
+        		    orange: 20g
+        		Vegetables:
+        		    Carrot: 21g
+        		    tomato: 10
+Dictionary có thể xếp ko theo thứ tự nhưng list phải theo thứ tự
+Dictionary có thể có nhiều dictionary con
+Ví dụ: 
+employee:       ##key value
+    name: john    ##key value pair
+    gender: male
+    age: 24
+    address:           ##dictionary
+        city: edison
+        state: 'new jersey'
+        country: 'united states'
+    payslips:
+    -                     ##array
+        month: june
+        amount: 1400
+    -
+        month: july
+        amount: 2400
+    -
+        month: august
+        amount: 3400
+=========================
+Ansible playbook: (chứa các lệnh)
+- Là 1 file YAML
+	+ Play: định nghĩa các list hành động(task) để chạy trên hosts
+	+ Task: 1 hành động được chạy trên host như chạy lệnh, script, cài gói, shutdown restart
+- Format: 
+	-
+		name: play1
+		hosts: localhost
+		tasks:
+			- name: start service
+			  command: systemctl ....
+			- name: install 
+			  yum: #module 
+			  		name: httpd
+			  		state: present
+	-
+		name: play2
+		hosts: localhost
+		tasks:
+			- name: abc
+			  command: systemctl .... #module
+- Để localhost -> lấy all host trong file inventory. Nếu để 1 group nào đó chỉ cần đánh tên group (ko cần dấu ngoặc vuông)
+- Module: là các lệnh command, yum, script
+- list các module: ansible-doc -l
+- Execute playbook: ansible-playbook <file playbook>
+Ví dụ: 
+-
+    name: 'Execute a script on all web server nodes and start httpd service'
+    hosts: web_nodes
+    tasks:
+        -
+            name: 'Update entry into /etc/resolv.conf'
+            lineinfile:
+                path: /etc/resolv.conf
+                line: 'nameserver 10.1.250.10'
+        -
+            name: 'create a new web user'
+            user:
+                name: web_user
+                uid: 1040
+                group: developers
+        -
+            name: 'Execute a script'
+            script: /tmp/install_script.sh
+        -
+            name: 'Start httpd service'
+            service:
+                name: httpd
+                state: present
+=======================================================
+- Ansible Variables: là các tham số khai trong file inventory ( ansible_user...) 
+tương ứng với các tham số khai dưới vars (trong file playbook)
+- Mục đích là thay các tham số tương ứng, sau này có thay đổi chỉ cần update inventory file
+ví dụ: playbook: '{{  nameserver_ip  }}'
+	   inventory: nameserver_ip=8.8.8.8
+Nếu như ko khai var trong inventory thì có thể khai trong file playbook
+-
+    name: 'Update nameserver entry into resolv.conf file on localhost'
+    hosts: localhost
+    tasks:
+        -
+            name: 'Update nameserver entry into resolv.conf file'
+            lineinfile:
+                path: /etc/resolv.conf
+                line: 'nameserver {{ nameserver_ip }}'
+        -
+            name: 'Disable SNMP Port'
+            firewalld:
+                port: '{{ snmp_port }}'
+                permanent: true
+                state: disabled
+-
+    hosts: localhost
+    vars:
+        car_model: 'BMW M3'
+        country_name: USA
+        title: 'Systems Engineer'
+    tasks:
+        -
+            command: 'echo "My car''s model is {{ car_model }}"'
+        -
+            command: 'echo "I live in the {{ country_name }}"'
+        -
+            command: 'echo "I work as a {{ title }}"'
+==================================================
+Condition: 
+Sử dụng When: (cùng cột với command)
+-
+    name: 'Am I an Adult or a Child?'
+    hosts: localhost
+    vars:
+        age: 25
+    tasks:
+        -
+            command: 'echo "I am a Child"'
+            when: 'age < 18'
+        -
+            command: 'echo "I am an Adult"'
+            when: 'age >=18'
+-
+    name: 'Add name server entry if not already entered'
+    hosts: localhost
+    tasks:
+        -
+            shell: 'cat /etc/resolv.conf'
+            register: command_output        #store command output vào thanh ghi
+        -
+            shell: 'echo "nameserver 10.0.250.10" >> /etc/resolv.conf'
+            when: 'command_output.stdout.find("10.0.250.10") == -1'    #điều kiện
+=====================
+LOOP: 
+Lặp lại những giá trị giống nhau có thể thay vào var
+
+-
+    name: 'Print list of fruits'
+    hosts: localhost
+    vars:
+        fruits:
+            - Apple
+            - Banana
+            - Grapes
+            - Orange
+    tasks:
+        -
+            command: 'echo "{{ item }}"'
+            with_items: '{{ fruits }}'
+---------------------------
+-
+    name: 'Install required packages'
+    hosts: localhost
+    vars:
+        packages:
+            - httpd
+            - binutils
+            - glibc
+            - ksh
+            - libaio
+            - libXext
+            - gcc
+            - make
+            - sysstat
+            - unixODBC
+            - mongodb
+            - nodejs
+            - grunt
+    tasks:
+        -
+            yum: 
+                name: '{{ item }}' 
+                state: present
+            with_items: '{{ packages }}'
+==================================
+Role: 
