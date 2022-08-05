@@ -791,7 +791,7 @@ enable_swift_s3api: "no"
 # Octavia - openstack loadbalancer Options
 ##########################################
 # Whether to run Kolla Ansible's automatic configuration for Octavia.
-# NOTE: if you upgrade from Ussuri, you must set `octavia_auto_configure` to `no`
+# NOTE: if you upgrade from Ussuri, you must set octavia_auto_configure to no
 # and keep your other Octavia config like before.
 #octavia_auto_configure: yes
 
@@ -864,7 +864,7 @@ enable_swift_s3api: "no"
 # Load balancer topology options are [ SINGLE, ACTIVE_STANDBY ]
 #octavia_loadbalancer_topology: "SINGLE"
 
-# The following variables are ignored as along as `octavia_auto_configure` is set to `yes`.
+# The following variables are ignored as along as octavia_auto_configure is set to yes.
 #octavia_amp_image_owner_id:
 #octavia_amp_boot_network_list:
 #octavia_amp_secgroup_list:
