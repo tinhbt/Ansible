@@ -1,5 +1,5 @@
 #!/bin/bash
-cat << EOF > /etc/kolla/global.yml
+cat << EOF > /etc/kolla/globals.yml
 
 ---
 # You can use this file to override _any_ variable throughout Kolla.
