@@ -1,3 +1,6 @@
+#!/bin/bash
+cat << EOF > multinode
+
 # These initial groups are the only groups required to be modified. The
 # additional groups are for more control of the environment.
 [all:vars]
@@ -783,3 +786,5 @@ ovn-database
 
 [ovn-sb-db:children]
 ovn-database
+
+EOF
